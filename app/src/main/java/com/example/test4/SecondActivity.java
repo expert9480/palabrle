@@ -1,186 +1,3 @@
-//package com.example.test4;
-//
-//
-//import android.graphics.Color;
-//import android.os.Bundle;
-//import android.view.View;
-//import android.widget.Button;
-//import android.widget.GridLayout;
-//import android.widget.TextView;
-//import android.widget.Toast;
-//import androidx.appcompat.app.AppCompatActivity;
-//
-//public class SecondActivity extends AppCompatActivity {
-//
-//    private String targetWord = "HELLO"; // Target word for this example.
-//    private String currentGuess = "";
-//    private int currentRow = 0;
-//    private TextView[][] gridViews = new TextView[6][5]; // 6 rows, 5 columns
-//    private GridLayout wordleGrid;
-//    private GridLayout keyboard;
-//
-//    @Override
-//    protected void onCreate(Bundle savedInstanceState) {
-//        super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_second);
-//
-//        wordleGrid = findViewById(R.id.wordle_grid);
-//        keyboard = findViewById(R.id.keyboard);
-//
-//        // Initialize the word grid (6 rows, 5 columns)
-//        for (int row = 0; row < 6; row++) {
-//            for (int col = 0; col < 5; col++) {
-//                TextView textView = new TextView(this);
-//                textView.setText("");
-//                textView.setTextSize(24);
-//                textView.setWidth(100);
-//                textView.setHeight(100);
-//                textView.setGravity(View.TEXT_ALIGNMENT_CENTER);
-//                textView.setBackgroundResource(android.R.drawable.edit_text);
-//                wordleGrid.addView(textView);
-//                gridViews[row][col] = textView;
-//            }
-//        }
-//
-//        // Initialize the keyboard buttons (A-Z)
-//        // Initialize the keyboard buttons (A-Z)
-//        for (char c = 'A'; c <= 'Z'; c++) {
-//            final char letter = c;
-//            Button button = new Button(this);
-//            button.setText(String.valueOf(letter));
-//            button.setOnClickListener(v -> onKeyboardButtonClick(String.valueOf(letter)));
-//            keyboard.addView(button);
-//        }
-//
-//        // Add the 'Ñ' character separately after 'Z'
-//        Button ñButton = new Button(this);
-//        ñButton.setText("Ñ");
-//        ñButton.setOnClickListener(v -> onKeyboardButtonClick("Ñ"));
-//        keyboard.addView(ñButton);
-//
-//        // Add "Submit" and "Clear" buttons to the keyboard
-//        Button submitButton = new Button(this);
-//        submitButton.setText("Submit");
-//        submitButton.setOnClickListener(v -> onSubmitClick());
-//        keyboard.addView(submitButton);
-//
-//        Button clearButton = new Button(this);
-//        clearButton.setText("Clear");
-//        clearButton.setOnClickListener(v -> onClearClick());
-//        keyboard.addView(clearButton);
-//    }
-//
-//    private void onKeyboardButtonClick(String letter) {
-//        if (currentGuess.length() < 5) {
-//            currentGuess += letter;
-//            updateGrid();
-//        }
-//    }
-//
-//    private void onClearClick() {
-//        if (currentGuess.length() > 0) {
-//            currentGuess = currentGuess.substring(0, currentGuess.length() - 1);
-//            updateGrid();
-//        }
-//    }
-//
-//    private void onSubmitClick() {
-//        if (currentGuess.length() == 5) {
-//            checkGuess();
-//            currentGuess = "";
-//            currentRow++;
-//        } else {
-//            Toast.makeText(this, "Guess must be 5 letters!", Toast.LENGTH_SHORT).show();
-//        }
-//    }
-//
-//
-//
-//    private void checkGuess() {
-//        String guess = currentGuess.toUpperCase();
-//
-//        // Check each letter in the guess
-//        for (int i = 0; i < 5; i++) {
-//            String letter = String.valueOf(guess.charAt(i));
-//
-//            // Check if the letter is correct (in the right position)
-//            if (targetWord.charAt(i) == guess.charAt(i)) {
-//                gridViews[currentRow][i].setBackgroundColor(getResources().getColor(android.R.color.holo_green_light));
-//                updateKeyboardButtonColor(letter, Color.GREEN); // Update the button color to green
-//            }
-//            // Check if the letter is in the word but in the wrong position
-//            else if (targetWord.contains(letter)) {
-//                gridViews[currentRow][i].setBackgroundColor(getResources().getColor(android.R.color.holo_orange_light));
-//                updateKeyboardButtonColor(letter, Color.YELLOW); // Update the button color to yellow
-//            }
-//            // Letter is not in the word at all
-//            else {
-//                gridViews[currentRow][i].setBackgroundColor(getResources().getColor(android.R.color.darker_gray));
-//                updateKeyboardButtonColor(letter, Color.GRAY); // Update the button color to gray
-//            }
-//
-//            gridViews[currentRow][i].setText(letter);
-//        }
-//
-//        if (currentGuess.equals(targetWord)) {
-//            Toast.makeText(this, "You Win!", Toast.LENGTH_SHORT).show();
-//        } else if (currentRow == 5) {
-//            Toast.makeText(this, "Game Over. The word was: " + targetWord, Toast.LENGTH_SHORT).show();
-//        }
-//    }
-//
-//    private void updateKeyboardButtonColor(String letter, int color) {
-//        // Loop through all the buttons on the keyboard
-//        for (int i = 0; i < keyboard.getChildCount(); i++) {
-//            View view = keyboard.getChildAt(i);
-//
-//            // Check if the button's text matches the letter we want to color
-//            if (view instanceof Button) {
-//                Button button = (Button) view;
-//                if (button.getText().toString().equals(letter)) {
-//                    button.setBackgroundColor(color); // Set the background color of the button
-//                }
-//            }
-//        }
-//    }
-//
-//
-////    private void checkGuess() {
-////        // Here, you can implement the logic to check if the guess is correct
-////        String guess = currentGuess.toUpperCase();
-////        for (int i = 0; i < 5; i++) {
-////            String letter = String.valueOf(guess.charAt(i));
-////            if (targetWord.charAt(i) == guess.charAt(i)) {
-////                gridViews[currentRow][i].setBackgroundColor(getResources().getColor(android.R.color.holo_green_light));
-////            } else if (targetWord.contains(letter)) {
-////                gridViews[currentRow][i].setBackgroundColor(getResources().getColor(android.R.color.holo_orange_light));
-////            } else {
-////                gridViews[currentRow][i].setBackgroundColor(getResources().getColor(android.R.color.darker_gray));
-////            }
-////            gridViews[currentRow][i].setText(letter);
-////        }
-////
-////        if (currentGuess.equals(targetWord)) {
-////            Toast.makeText(this, "You Win!", Toast.LENGTH_SHORT).show();
-////        } else if (currentRow == 5) {
-////            Toast.makeText(this, "Game Over. The word was: " + targetWord, Toast.LENGTH_SHORT).show();
-////        }
-////    }
-//
-//    private void updateGrid() {
-//        for (int i = 0; i < 5; i++) {
-//            gridViews[currentRow][i].setText("");
-//        }
-//        for (int i = 0; i < currentGuess.length(); i++) {
-//            gridViews[currentRow][i].setText(String.valueOf(currentGuess.charAt(i)));
-//        }
-//    }
-//}
-//
-//
-//
-
-
 package com.example.test4;
 
 import android.graphics.Color;
@@ -224,9 +41,9 @@ public class SecondActivity extends AppCompatActivity {
             for (int col = 0; col < 5; col++) {
                 TextView textView = new TextView(this);
                 textView.setText(" ");
-                textView.setTextSize(24);
+                textView.setTextSize(26);
                 textView.setWidth(100);
-                textView.setHeight(100);
+                textView.setHeight(90);
                 textView.setGravity(Gravity.CENTER); // Center the text within the cell
                 textView.setBackgroundResource(android.R.drawable.edit_text);
 
@@ -237,7 +54,7 @@ public class SecondActivity extends AppCompatActivity {
 
                 // Set margins to add space on the left and right sides
                 int marginSize = 8; // Adjust this value as needed
-                params.setMargins(marginSize, 0, marginSize, 0);
+                params.setMargins(marginSize, 0, marginSize, 10);
 
                 // Set the layout parameters to the TextView
                 textView.setLayoutParams(params);
@@ -247,6 +64,8 @@ public class SecondActivity extends AppCompatActivity {
                 gridViews[row][col] = textView;
             }
         }
+
+
 
 
 
@@ -362,39 +181,62 @@ public class SecondActivity extends AppCompatActivity {
             Toast.makeText(this, "Guess must be 5 letters!", Toast.LENGTH_SHORT).show();
         }
     }
-
     private void checkGuess() {
         String guess = currentGuess.toUpperCase();
 
-        // Check each letter in the guess
+        // Arrays to track the status of letters
+        boolean[] usedInGuess = new boolean[5]; // To mark letters in the guess that are already used
+        int[] letterCountTarget = new int[26];  // To count occurrences of each letter in the target word
+        int[] letterCountGuess = new int[26];   // To count occurrences of each letter in the guess
+
+        // Count the occurrences of each letter in the target word
+        for (int i = 0; i < 5; i++) {
+            letterCountTarget[targetWord.charAt(i) - 'A']++;
+        }
+
+        // First pass: Check for correct letters in the correct positions (green)
         for (int i = 0; i < 5; i++) {
             String letter = String.valueOf(guess.charAt(i));
 
-            // Check if the letter is correct (in the right position)
+            // Check if the letter is correct and in the right position
             if (targetWord.charAt(i) == guess.charAt(i)) {
                 gridViews[currentRow][i].setBackgroundColor(getResources().getColor(android.R.color.holo_green_light));
                 updateKeyboardButtonColor(letter, Color.GREEN); // Update the button color to green
+                usedInGuess[i] = true; // Mark this letter as used (green)
+                letterCountTarget[letter.charAt(0) - 'A']--; // Decrease the target count for this letter
+                gridViews[currentRow][i].setText(letter);
             }
-            // Check if the letter is in the word but in the wrong position
-            else if (targetWord.contains(letter)) {
-                gridViews[currentRow][i].setBackgroundColor(getResources().getColor(android.R.color.holo_orange_light));
-                updateKeyboardButtonColor(letter, Color.YELLOW); // Update the button color to yellow
-            }
-            // Letter is not in the word at all
-            else {
-                gridViews[currentRow][i].setBackgroundColor(getResources().getColor(android.R.color.darker_gray));
-                updateKeyboardButtonColor(letter, Color.GRAY); // Update the button color to gray
-            }
-
-            gridViews[currentRow][i].setText(letter);
         }
 
+        // Second pass: Check for correct letters in the wrong positions (yellow)
+        for (int i = 0; i < 5; i++) {
+            String letter = String.valueOf(guess.charAt(i));
+
+            // Only check yellow if the letter hasn't been used already (i.e., not already green)
+            if (!usedInGuess[i]) {
+                // Check if the letter is in the target word and not in the right position
+                if (targetWord.contains(letter) && letterCountTarget[letter.charAt(0) - 'A'] > 0) {
+                    gridViews[currentRow][i].setBackgroundColor(getResources().getColor(android.R.color.holo_orange_light));
+                    updateKeyboardButtonColor(letter, Color.YELLOW); // Update the button color to yellow
+                    letterCountTarget[letter.charAt(0) - 'A']--; // Decrease the available count for this letter in target word
+                    gridViews[currentRow][i].setText(letter);
+                } else {
+                    gridViews[currentRow][i].setBackgroundColor(getResources().getColor(android.R.color.darker_gray));
+                    updateKeyboardButtonColor(letter, Color.GRAY); // Update the button color to gray
+                    gridViews[currentRow][i].setText(letter);
+                }
+            }
+        }
+
+        // Check if the guess is correct
         if (currentGuess.equals(targetWord)) {
             Toast.makeText(this, "You Win!", Toast.LENGTH_SHORT).show();
         } else if (currentRow == 5) {
             Toast.makeText(this, "Game Over. The word was: " + targetWord, Toast.LENGTH_SHORT).show();
         }
     }
+
+
 
     private void updateKeyboardButtonColor(String letter, int color) {
         // Loop through all the buttons on the keyboard

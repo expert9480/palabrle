@@ -20,9 +20,7 @@
         app:layout_constraintBottom_toTopOf="@+id/keyboard"
         android:layout_marginTop="50dp"
         android:layout_marginBottom="20dp">
-
-        <!-- The cells will be added programmatically -->
-
+<!--         The cells will be added programmatically -->
     </GridLayout>
 
     <!-- Custom Keyboard -->
@@ -38,9 +36,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/wordle_grid">
-
         <!-- Keyboard buttons will be added programmatically -->
-
     </GridLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
