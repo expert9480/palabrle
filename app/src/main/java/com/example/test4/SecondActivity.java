@@ -186,6 +186,8 @@ package com.example.test4;
 import android.graphics.Color;
 import android.content.res.AssetManager;
 import android.os.Bundle;
+import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.GridLayout;
@@ -221,7 +223,7 @@ public class SecondActivity extends AppCompatActivity {
         for (int row = 0; row < 6; row++) {
             for (int col = 0; col < 5; col++) {
                 TextView textView = new TextView(this);
-                textView.setText("");
+                textView.setText(" ");
                 textView.setTextSize(24);
                 textView.setWidth(100);
                 textView.setHeight(100);
@@ -233,52 +235,87 @@ public class SecondActivity extends AppCompatActivity {
         }
 
         // Initialize the keyboard buttons (A-Z)
+// Initialize the keyboard buttons (A-Z)
+        keyboard.setColumnCount(10); // Adjust the number of columns for the keyboard layout
         for (char c = 'A'; c <= 'Z'; c++) {
             final char letter = c;
             Button button = new Button(this);
             button.setText(String.valueOf(letter));
-            button.setOnClickListener(v -> onKeyboardButtonClick(String.valueOf(letter)));
+            button.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+            GridLayout.LayoutParams params = new GridLayout.LayoutParams();
+            params.setGravity(Gravity.CENTER);
+            params.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f); // Ensure buttons equally fill the grid columns
+            button.setLayoutParams(params);
             keyboard.addView(button);
+            button.setOnClickListener(v -> onKeyboardButtonClick(String.valueOf(letter)));
         }
 
         // Add the 'Ñ' character separately after 'Z'
         Button ñButton = new Button(this);
         ñButton.setText("Ñ");
+        ñButton.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+        GridLayout.LayoutParams paramsÑ = new GridLayout.LayoutParams();
+        paramsÑ.setGravity(Gravity.CENTER);
+        paramsÑ.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f); // Ensure buttons equally fill the grid columns
+        ñButton.setLayoutParams(paramsÑ);
         ñButton.setOnClickListener(v -> onKeyboardButtonClick("Ñ"));
         keyboard.addView(ñButton);
 
         // Add "Submit" and "Clear" buttons to the keyboard
         Button submitButton = new Button(this);
         submitButton.setText("✔");
+        submitButton.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+        GridLayout.LayoutParams paramsSubmit = new GridLayout.LayoutParams();
+        paramsSubmit.setGravity(Gravity.CENTER);
+        paramsSubmit.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f); // Ensure buttons equally fill the grid columns
+        submitButton.setLayoutParams(paramsSubmit);
         submitButton.setOnClickListener(v -> onSubmitClick());
         keyboard.addView(submitButton);
 
         Button clearButton = new Button(this);
         clearButton.setText("⌫");
+        clearButton.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+        GridLayout.LayoutParams paramsClear = new GridLayout.LayoutParams();
+        paramsClear.setGravity(Gravity.CENTER);
+        paramsClear.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f); // Ensure buttons equally fill the grid columns
+        clearButton.setLayoutParams(paramsClear);
         clearButton.setOnClickListener(v -> onClearClick());
         keyboard.addView(clearButton);
     }
 
     private String getRandomWordFromAssets() {
-        List<String> words = new ArrayList<>();
+        Random random = new Random();
         AssetManager assetManager = getAssets();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(assetManager.open("PalabrasSinAcentos/5.txt")))) {
-//        try (BufferedReader reader = new BufferedReader(new InputStreamReader(assetManager.open("app/build/generated/res/assets/Palabras/5.txt")))) {
             String line;
+            List<String> words = new ArrayList<>();
             while ((line = reader.readLine()) != null) {
                 words.add(line.trim().toUpperCase());
             }
+            if (!words.isEmpty()) {
+                return words.get(random.nextInt(words.size()));
+            }
         } catch (IOException e) {
             e.printStackTrace();
-            throw new RuntimeException("Failed to read the file: Palabras/5.txt");
+            throw new RuntimeException("Failed to read the file: PalabrasSinAcentos/5.txt");
         }
 
-        if (!words.isEmpty()) {
-            Random random = new Random();
-            return words.get(random.nextInt(words.size()));
-        }
+        throw new RuntimeException("No words found in the file: PalabrasSinAcentos/5.txt");
+    }
 
-        throw new RuntimeException("No words found in the file: Palabras/5.txt");
+    private boolean isWordInList(String word) {
+        AssetManager assetManager = getAssets();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(assetManager.open("PalabrasSinAcentos/5.txt")))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.trim().toUpperCase().equals(word)) {
+                    return true;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     private void onKeyboardButtonClick(String letter) {
@@ -297,26 +334,15 @@ public class SecondActivity extends AppCompatActivity {
 
     private void onSubmitClick() {
         if (currentGuess.length() == 5) {
+            if (!isWordInList(currentGuess)) {
+                Toast.makeText(this, "Word not in list", Toast.LENGTH_SHORT).show();
+                return;
+            }
             checkGuess();
             currentGuess = "";
             currentRow++;
         } else {
             Toast.makeText(this, "Guess must be 5 letters!", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void updateKeyboardButtonColor(String letter, int color) {
-        // Loop through all the buttons on the keyboard
-        for (int i = 0; i < keyboard.getChildCount(); i++) {
-            View view = keyboard.getChildAt(i);
-
-            // Check if the button's text matches the letter we want to color
-            if (view instanceof Button) {
-                Button button = (Button) view;
-                if (button.getText().toString().equals(letter)) {
-                    button.setBackgroundColor(color); // Set the background color of the button
-                }
-            }
         }
     }
 
@@ -350,6 +376,21 @@ public class SecondActivity extends AppCompatActivity {
             Toast.makeText(this, "You Win!", Toast.LENGTH_SHORT).show();
         } else if (currentRow == 5) {
             Toast.makeText(this, "Game Over. The word was: " + targetWord, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void updateKeyboardButtonColor(String letter, int color) {
+        // Loop through all the buttons on the keyboard
+        for (int i = 0; i < keyboard.getChildCount(); i++) {
+            View view = keyboard.getChildAt(i);
+
+            // Check if the button's text matches the letter we want to color
+            if (view instanceof Button) {
+                Button button = (Button) view;
+                if (button.getText().toString().equals(letter)) {
+                    button.setBackgroundColor(color); // Set the background color of the button
+                }
+            }
         }
     }
 
