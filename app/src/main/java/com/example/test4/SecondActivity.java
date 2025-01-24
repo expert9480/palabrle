@@ -227,12 +227,29 @@ public class SecondActivity extends AppCompatActivity {
                 textView.setTextSize(24);
                 textView.setWidth(100);
                 textView.setHeight(100);
-                textView.setGravity(View.TEXT_ALIGNMENT_CENTER);
+                textView.setGravity(Gravity.CENTER); // Center the text within the cell
                 textView.setBackgroundResource(android.R.drawable.edit_text);
+
+                // Create layout parameters for the TextView with margins
+                GridLayout.LayoutParams params = new GridLayout.LayoutParams();
+                params.setGravity(Gravity.CENTER);
+                params.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, GridLayout.FILL, 1f); // Ensure cells equally fill the grid columns
+
+                // Set margins to add space on the left and right sides
+                int marginSize = 8; // Adjust this value as needed
+                params.setMargins(marginSize, 0, marginSize, 0);
+
+                // Set the layout parameters to the TextView
+                textView.setLayoutParams(params);
+
+                // Add the TextView to the grid
                 wordleGrid.addView(textView);
                 gridViews[row][col] = textView;
             }
         }
+
+
+
 
         // Initialize the keyboard buttons (A-Z)
 // Initialize the keyboard buttons (A-Z)
