@@ -18,16 +18,15 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-
 public class SecondActivity extends AppCompatActivity {
 
-    private String targetWord; // Target word from .txt file
+    private String targetWord;
     private String currentGuess = "";
     private int currentRow = 0;
     private TextView[][] gridViews;
     private GridLayout wordleGrid;
     private GridLayout keyboard;
-    private int letterCount; // Letter count passed from MainActivity
+    private int letterCount;
     private String fileName;
 
     @Override
@@ -35,62 +34,47 @@ public class SecondActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_second);
 
-        // Get the letter count from the intent
-        letterCount = getIntent().getIntExtra("LETTER_COUNT",5); // Default to 5 if not provided
-        Log.d("SecondActivity", "Received letterCount: " + letterCount); // Debug log
+        letterCount = getIntent().getIntExtra("LETTER_COUNT", 5);
+        Log.d("SecondActivity", "Received letterCount: " + letterCount);
 
-        // Initialize the grid and keyboard
         wordleGrid = findViewById(R.id.wordle_grid);
         keyboard = findViewById(R.id.keyboard);
 
-        // Dynamically set the grid column count based on the letter count
         wordleGrid.setColumnCount(letterCount);
-        gridViews = new TextView[6][letterCount]; // 6 rows, dynamic columns based on letter count
+        wordleGrid.setRowCount(6); // Ensure the grid has 6 rows
 
-        // Load the target word based on the selected letter count
+        gridViews = new TextView[6][letterCount];
+
         targetWord = getRandomWordFromAssets(letterCount);
 
-        // Initialize the word grid (6 rows, dynamic columns)
         for (int row = 0; row < 6; row++) {
             for (int col = 0; col < letterCount; col++) {
                 TextView textView = new TextView(this);
                 textView.setText(" ");
                 textView.setTextSize(26);
-                textView.setWidth(100);
-                textView.setHeight(90);
-                textView.setGravity(Gravity.CENTER); // Center the text within the cell
+                textView.setGravity(Gravity.CENTER);
                 textView.setBackgroundResource(android.R.drawable.edit_text);
 
-                // Create layout parameters for the TextView with margins
                 GridLayout.LayoutParams params = new GridLayout.LayoutParams();
-                params.setGravity(Gravity.CENTER);
-                params.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, GridLayout.FILL, 1f); // Ensure cells equally fill the grid columns
+                params.rowSpec = GridLayout.spec(row, 1f); // Set the row weight to 1
+                params.columnSpec = GridLayout.spec(col, 1f); // Set the column weight to 1
+                params.setMargins(8, 8, 8, 8); // Set margins
 
-                // Set margins to add space on the left and right sides
-                int marginSize = 8; // Adjust this value as needed
-                params.setMargins(marginSize, 0, marginSize, 10);
-
-                // Set the layout parameters to the TextView
                 textView.setLayoutParams(params);
 
-                // Add the TextView to the grid
                 wordleGrid.addView(textView);
                 gridViews[row][col] = textView;
             }
         }
 
-
-
-        // Initialize the keyboard buttons (A-Z, Ñ, Submit, Clear)
         initializeKeyboard();
     }
 
     private String getRandomWordFromAssets(int letterCount) {
         Random random = new Random();
         AssetManager assetManager = getAssets();
-        System.out.println(letterCount);
-        fileName =  letterCount + ".txt"; // Dynamically generate the file name (e.g., 3.txt, 4.txt, etc.)
-        System.out.println(fileName);
+        String fileName =  letterCount + ".txt";
+        Log.d("SecondActivity", "Attempting to read file: " + fileName); // Debug log
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(assetManager.open("PalabrasSinAcentos/" + fileName)))) {
             String line;
@@ -103,14 +87,16 @@ public class SecondActivity extends AppCompatActivity {
             }
         } catch (IOException e) {
             e.printStackTrace();
+            Log.e("SecondActivity", "Failed to read the file: " + fileName, e); // Error log
             throw new RuntimeException("Failed to read the file: " + fileName);
         }
 
+        Log.e("SecondActivity", "No words found in the file: " + fileName); // Error log
         throw new RuntimeException("No words found in the file: " + fileName);
     }
 
     private void initializeKeyboard() {
-        keyboard.setColumnCount(10); // Adjust the number of columns for the keyboard layout
+        keyboard.setColumnCount(10);
         for (char c = 'A'; c <= 'Z'; c++) {
             final char letter = c;
             Button button = new Button(this);
@@ -118,30 +104,28 @@ public class SecondActivity extends AppCompatActivity {
             button.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
             GridLayout.LayoutParams params = new GridLayout.LayoutParams();
             params.setGravity(Gravity.CENTER);
-            params.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f); // Ensure buttons equally fill the grid columns
+            params.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
             button.setLayoutParams(params);
             keyboard.addView(button);
             button.setOnClickListener(v -> onKeyboardButtonClick(String.valueOf(letter)));
         }
 
-        // Add the 'Ñ' character separately after 'Z'
         Button ñButton = new Button(this);
         ñButton.setText("Ñ");
         ñButton.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
         GridLayout.LayoutParams paramsÑ = new GridLayout.LayoutParams();
         paramsÑ.setGravity(Gravity.CENTER);
-        paramsÑ.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f); // Ensure buttons equally fill the grid columns
+        paramsÑ.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
         ñButton.setLayoutParams(paramsÑ);
         ñButton.setOnClickListener(v -> onKeyboardButtonClick("Ñ"));
         keyboard.addView(ñButton);
 
-        // Add "Submit" and "Clear" buttons to the keyboard
         Button submitButton = new Button(this);
         submitButton.setText("✔");
         submitButton.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
         GridLayout.LayoutParams paramsSubmit = new GridLayout.LayoutParams();
         paramsSubmit.setGravity(Gravity.CENTER);
-        paramsSubmit.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f); // Ensure buttons equally fill the grid columns
+        paramsSubmit.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
         submitButton.setLayoutParams(paramsSubmit);
         submitButton.setOnClickListener(v -> onSubmitClick());
         keyboard.addView(submitButton);
@@ -151,7 +135,7 @@ public class SecondActivity extends AppCompatActivity {
         clearButton.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
         GridLayout.LayoutParams paramsClear = new GridLayout.LayoutParams();
         paramsClear.setGravity(Gravity.CENTER);
-        paramsClear.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f); // Ensure buttons equally fill the grid columns
+        paramsClear.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
         clearButton.setLayoutParams(paramsClear);
         clearButton.setOnClickListener(v -> onClearClick());
         keyboard.addView(clearButton);
@@ -200,45 +184,42 @@ public class SecondActivity extends AppCompatActivity {
         return false;
     }
 
-
     private void checkGuess() {
         String guess = currentGuess.toUpperCase();
 
-        // Arrays to track the status of letters
         boolean[] usedInGuess = new boolean[letterCount]; // To mark letters in the guess that are already used
         int[] letterCountTarget = new int[26];  // To count occurrences of each letter in the target word
-        int[] letterCountGuess = new int[26];   // To count occurrences of each letter in the guess
 
-        // Count the occurrences of each letter in the target word
         for (int i = 0; i < letterCount; i++) {
             letterCountTarget[targetWord.charAt(i) - 'A']++;
         }
 
-        // First pass: Check for correct letters in the correct positions (green)
+        // First pass: mark correct positions (green)
         for (int i = 0; i < letterCount; i++) {
             String letter = String.valueOf(guess.charAt(i));
 
-            // Check if the letter is correct and in the right position
             if (targetWord.charAt(i) == guess.charAt(i)) {
                 gridViews[currentRow][i].setBackgroundColor(getResources().getColor(android.R.color.holo_green_light));
                 updateKeyboardButtonColor(letter, Color.GREEN); // Update the button color to green
-                usedInGuess[i] = true; // Mark this letter as used (green)
-                letterCountTarget[letter.charAt(0) - 'A']--; // Decrease the target count for this letter
+                usedInGuess[i] = true;
+                letterCountTarget[letter.charAt(0) - 'A']--;
                 gridViews[currentRow][i].setText(letter);
             }
         }
 
-        // Second pass: Check for correct letters in the wrong positions (yellow)
+        // Second pass: mark misplaced letters (yellow) and incorrect letters (gray)
         for (int i = 0; i < letterCount; i++) {
             String letter = String.valueOf(guess.charAt(i));
 
-            // Only check yellow if the letter hasn't been used already (i.e., not already green)
             if (!usedInGuess[i]) {
-                // Check if the letter is in the target word and not in the right position
-                if (targetWord.contains(letter) && letterCountTarget[letter.charAt(0) - 'A'] > 0) {
+                if (letterCountTarget[letter.charAt(0) - 'A'] > 0) {
                     gridViews[currentRow][i].setBackgroundColor(getResources().getColor(android.R.color.holo_orange_light));
-                    updateKeyboardButtonColor(letter, Color.YELLOW); // Update the button color to yellow
-                    letterCountTarget[letter.charAt(0) - 'A']--; // Decrease the available count for this letter in target word
+                    updateKeyboardButtonColor(letter, Color.YELLOW);
+                    letterCountTarget[letter.charAt(0) - 'A']--;
+                    gridViews[currentRow][i].setText(letter);
+                } else if (targetWord.contains(letter)) {
+                    gridViews[currentRow][i].setBackgroundColor(getResources().getColor(android.R.color.holo_orange_light));
+                    updateKeyboardButtonColor(letter, Color.YELLOW);
                     gridViews[currentRow][i].setText(letter);
                 } else {
                     gridViews[currentRow][i].setBackgroundColor(getResources().getColor(android.R.color.darker_gray));
@@ -248,13 +229,13 @@ public class SecondActivity extends AppCompatActivity {
             }
         }
 
-        // Check if the guess is correct
         if (currentGuess.equals(targetWord)) {
             Toast.makeText(this, "You Win!", Toast.LENGTH_SHORT).show();
         } else if (currentRow == 5) {
             Toast.makeText(this, "Game Over. The word was: " + targetWord, Toast.LENGTH_SHORT).show();
         }
     }
+
 
     private void updateKeyboardButtonColor(String letter, int color) {
         // Loop through all the buttons on the keyboard
