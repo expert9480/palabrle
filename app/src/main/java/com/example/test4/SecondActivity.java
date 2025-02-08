@@ -73,7 +73,7 @@ public class SecondActivity extends AppCompatActivity {
     private String getRandomWordFromAssets(int letterCount) {
         Random random = new Random();
         AssetManager assetManager = getAssets();
-        String fileName =  letterCount + ".txt";
+        fileName =  letterCount + ".txt";
         Log.d("SecondActivity", "Attempting to read file: " + fileName); // Debug log
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(assetManager.open("PalabrasSinAcentos/" + fileName)))) {
