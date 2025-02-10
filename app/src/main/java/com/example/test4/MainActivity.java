@@ -26,6 +26,8 @@ public class MainActivity extends AppCompatActivity {
 
         buttonNavigate.setOnClickListener(new View.OnClickListener() {
             @Override
+
+            //when clicked, sends letter count to second activity and makes the screen second screen
             public void onClick(View v) {
                 // Get the selected letter count from the NumberPicker
                 int letterCount = numberPicker.getValue();
@@ -38,6 +40,3 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 }
-
-//To Do List
-//the colors for the semi correct gets overridden in the key selection if there is a letter later on that is fully incorrect

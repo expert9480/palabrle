@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Random;
 public class SecondActivity extends AppCompatActivity {
 
+    //initializing variables
     private String targetWord;
     private String currentGuess = "";
     private int currentRow = 0;
@@ -34,6 +35,7 @@ public class SecondActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_second);
 
+        //setting variables
         letterCount = getIntent().getIntExtra("LETTER_COUNT", 5);
         Log.d("SecondActivity", "Received letterCount: " + letterCount);
 
@@ -47,6 +49,7 @@ public class SecondActivity extends AppCompatActivity {
 
         targetWord = getRandomWordFromAssets(letterCount);
 
+        //draws the grid of boxes for guesses
         for (int row = 0; row < 6; row++) {
             for (int col = 0; col < letterCount; col++) {
                 TextView textView = new TextView(this);
@@ -70,6 +73,7 @@ public class SecondActivity extends AppCompatActivity {
         initializeKeyboard();
     }
 
+    //Generates a random word with the number of letters given
     private String getRandomWordFromAssets(int letterCount) {
         Random random = new Random();
         AssetManager assetManager = getAssets();
@@ -95,8 +99,11 @@ public class SecondActivity extends AppCompatActivity {
         throw new RuntimeException("No words found in the file: " + fileName);
     }
 
+    //creating the keyboard because making 50 buttons is too much work .-.
     private void initializeKeyboard() {
         keyboard.setColumnCount(10);
+
+        //a-z alphabet keys
         for (char c = 'A'; c <= 'Z'; c++) {
             final char letter = c;
             Button button = new Button(this);
@@ -110,6 +117,7 @@ public class SecondActivity extends AppCompatActivity {
             button.setOnClickListener(v -> onKeyboardButtonClick(String.valueOf(letter)));
         }
 
+        //ñ button
         Button ñButton = new Button(this);
         ñButton.setText("Ñ");
         ñButton.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
@@ -120,6 +128,7 @@ public class SecondActivity extends AppCompatActivity {
         ñButton.setOnClickListener(v -> onKeyboardButtonClick("Ñ"));
         keyboard.addView(ñButton);
 
+        //submit button
         Button submitButton = new Button(this);
         submitButton.setText("✔");
         submitButton.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
@@ -130,6 +139,7 @@ public class SecondActivity extends AppCompatActivity {
         submitButton.setOnClickListener(v -> onSubmitClick());
         keyboard.addView(submitButton);
 
+        //delete button
         Button clearButton = new Button(this);
         clearButton.setText("⌫");
         clearButton.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
@@ -141,6 +151,7 @@ public class SecondActivity extends AppCompatActivity {
         keyboard.addView(clearButton);
     }
 
+    //makes keys type
     private void onKeyboardButtonClick(String letter) {
         if (currentGuess.length() < letterCount) {
             currentGuess += letter;
@@ -148,6 +159,7 @@ public class SecondActivity extends AppCompatActivity {
         }
     }
 
+    //makes clear key clear
     private void onClearClick() {
         if (currentGuess.length() > 0) {
             currentGuess = currentGuess.substring(0, currentGuess.length() - 1);
@@ -155,6 +167,7 @@ public class SecondActivity extends AppCompatActivity {
         }
     }
 
+    //makes submit button check the guess
     private void onSubmitClick() {
         if (currentGuess.length() == letterCount) {
             if (!isWordInList(currentGuess)) {
@@ -169,6 +182,7 @@ public class SecondActivity extends AppCompatActivity {
         }
     }
 
+    //Checks to see if the input word is actually is in the list and verifying if the word is a real word
     private boolean isWordInList(String word) {
         AssetManager assetManager = getAssets();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(assetManager.open("PalabrasSinAcentos/" + fileName)))) {
@@ -184,6 +198,8 @@ public class SecondActivity extends AppCompatActivity {
         return false;
     }
 
+    //checks the guess to see if guess is correct and updates keyboard and board colors
+    //for some reason cant use same color system .-.
     private void checkGuess() {
         String guess = currentGuess.toUpperCase();
 
@@ -200,14 +216,13 @@ public class SecondActivity extends AppCompatActivity {
 
             if (targetWord.charAt(i) == guess.charAt(i)) {
                 gridViews[currentRow][i].setBackgroundColor(getResources().getColor(android.R.color.holo_green_light));
-                updateKeyboardButtonColor(letter, Color.GREEN); // Update the button color to green
+                updateKeyboardButtonColor(letter, Color.GREEN);
                 usedInGuess[i] = true;
                 letterCountTarget[letter.charAt(0) - 'A']--;
                 gridViews[currentRow][i].setText(letter);
             }
         }
 
-        // Second pass: mark misplaced letters (yellow) and incorrect letters (gray)
         for (int i = 0; i < letterCount; i++) {
             String letter = String.valueOf(guess.charAt(i));
 
@@ -236,7 +251,7 @@ public class SecondActivity extends AppCompatActivity {
         }
     }
 
-
+    //helps update colors of stuff
     private void updateKeyboardButtonColor(String letter, int color) {
         // Loop through all the buttons on the keyboard
         for (int i = 0; i < keyboard.getChildCount(); i++) {
@@ -246,7 +261,7 @@ public class SecondActivity extends AppCompatActivity {
             if (view instanceof Button) {
                 Button button = (Button) view;
                 if (button.getText().toString().equals(letter)) {
-                    button.setBackgroundColor(color); // Set the background color of the button
+                    button.setBackgroundColor(color);
                 }
             }
         }
