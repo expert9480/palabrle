@@ -18,6 +18,8 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
+
 public class SecondActivity extends AppCompatActivity {
 
     //initializing variables
@@ -205,6 +207,7 @@ public class SecondActivity extends AppCompatActivity {
 
         boolean[] usedInGuess = new boolean[letterCount]; // To mark letters in the guess that are already used
         int[] letterCountTarget = new int[26];  // To count occurrences of each letter in the target word
+        int[] yellowMarkedCount = new int[26];  // To track how many letters have been marked yellow
 
         for (int i = 0; i < letterCount; i++) {
             letterCountTarget[targetWord.charAt(i) - 'A']++;
@@ -212,35 +215,33 @@ public class SecondActivity extends AppCompatActivity {
 
         // First pass: mark correct positions (green)
         for (int i = 0; i < letterCount; i++) {
-            String letter = String.valueOf(guess.charAt(i));
+            String guessLetter = String.valueOf(guess.charAt(i));
 
             if (targetWord.charAt(i) == guess.charAt(i)) {
                 gridViews[currentRow][i].setBackgroundColor(getResources().getColor(android.R.color.holo_green_light));
-                updateKeyboardButtonColor(letter, Color.GREEN);
+                updateKeyboardButtonColor(guessLetter, Color.GREEN);
                 usedInGuess[i] = true;
-                letterCountTarget[letter.charAt(0) - 'A']--;
-                gridViews[currentRow][i].setText(letter);
+                letterCountTarget[guessLetter.charAt(0) - 'A']--;
+                gridViews[currentRow][i].setText(guessLetter);
             }
         }
 
+        // Second pass: mark incorrect positions (yellow) and incorrect letters (gray)
         for (int i = 0; i < letterCount; i++) {
-            String letter = String.valueOf(guess.charAt(i));
+            String guessLetter = String.valueOf(guess.charAt(i));
+            int letterIndex = guessLetter.charAt(0) - 'A';
 
             if (!usedInGuess[i]) {
-                if (letterCountTarget[letter.charAt(0) - 'A'] > 0) {
+                if (letterCountTarget[letterIndex] > 0 && yellowMarkedCount[letterIndex] < letterCountTarget[letterIndex]) {
                     gridViews[currentRow][i].setBackgroundColor(getResources().getColor(android.R.color.holo_orange_light));
-                    updateKeyboardButtonColor(letter, Color.YELLOW);
-                    letterCountTarget[letter.charAt(0) - 'A']--;
-                    gridViews[currentRow][i].setText(letter);
-                } else if (targetWord.contains(letter)) {
-                    gridViews[currentRow][i].setBackgroundColor(getResources().getColor(android.R.color.holo_orange_light));
-                    updateKeyboardButtonColor(letter, Color.YELLOW);
-                    gridViews[currentRow][i].setText(letter);
+                    updateKeyboardButtonColor(guessLetter, Color.YELLOW);
+                    yellowMarkedCount[letterIndex]++;
+                    usedInGuess[i] = true; // Mark this letter as used
                 } else {
                     gridViews[currentRow][i].setBackgroundColor(getResources().getColor(android.R.color.darker_gray));
-                    updateKeyboardButtonColor(letter, Color.GRAY);
-                    gridViews[currentRow][i].setText(letter);
+                    updateKeyboardButtonColor(guessLetter, Color.GRAY);
                 }
+                gridViews[currentRow][i].setText(guessLetter);
             }
         }
 
