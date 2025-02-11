@@ -171,14 +171,14 @@ public class SecondActivity extends AppCompatActivity {
     private void onSubmitClick() {
         if (currentGuess.length() == letterCount) {
             if (!isWordInList(currentGuess)) {
-                Toast.makeText(this, "Word not in list", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "La Palabra no esta en la lista!", Toast.LENGTH_SHORT).show();
                 return;
             }
             checkGuess();
             currentGuess = "";
             currentRow++;
         } else {
-            Toast.makeText(this, "Guess must be " + letterCount + " letters!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Palabra necesita " + letterCount + " letras!", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -238,16 +238,16 @@ public class SecondActivity extends AppCompatActivity {
                     gridViews[currentRow][i].setText(letter);
                 } else {
                     gridViews[currentRow][i].setBackgroundColor(getResources().getColor(android.R.color.darker_gray));
-                    updateKeyboardButtonColor(letter, Color.GRAY); // Update the button color to gray
+                    updateKeyboardButtonColor(letter, Color.GRAY);
                     gridViews[currentRow][i].setText(letter);
                 }
             }
         }
 
         if (currentGuess.equals(targetWord)) {
-            Toast.makeText(this, "You Win!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Ganas!", Toast.LENGTH_SHORT).show();
         } else if (currentRow == 5) {
-            Toast.makeText(this, "Game Over. The word was: " + targetWord, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Perdiste. La palabra era: " + targetWord, Toast.LENGTH_SHORT).show();
         }
     }
 
