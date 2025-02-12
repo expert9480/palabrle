@@ -1,8 +1,11 @@
 package com.example.test4;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.content.res.AssetManager;
 import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.os.Handler;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -15,9 +18,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.text.BreakIterator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import android.content.SharedPreferences;
 
 
 public class SecondActivity extends AppCompatActivity {
@@ -31,11 +36,44 @@ public class SecondActivity extends AppCompatActivity {
     private GridLayout keyboard;
     private int letterCount;
     private String fileName;
+    int timeLimit;
+    boolean isTimeLimitEnabled;
+    TextView timeTextViewRef;
+
+//    @Override
+//    protected void onPause() {
+//        super.onPause();
+//
+//        // Save that the app was paused (or closed properly)
+//        SharedPreferences preferences = getSharedPreferences("AppState", MODE_PRIVATE);
+//        SharedPreferences.Editor editor = preferences.edit();
+//        editor.putBoolean("wasClosedProperly", true);  // Save the state
+//        editor.apply();
+//    }
+//
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//
+//        SharedPreferences preferences = getSharedPreferences("AppState", MODE_PRIVATE);
+//        boolean wasClosedProperly = preferences.getBoolean("wasClosedProperly", false);
+//
+//        if (wasClosedProperly) {
+//            // Navigate back to MainActivity
+//            Intent intent = new Intent(this, MainActivity.class);
+//            startActivity(intent);
+//            finish();  // Close the current activity (SecondActivity)
+//        }
+//    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_second);
+
+        timeLimit = getIntent().getIntExtra("TIME_LIMIT", 0); // Default time limit is 5 minutes
+        Log.d("SecondActivity", "Received timeLimit: " + timeLimit);
+        isTimeLimitEnabled = timeLimit != 0;
 
         //setting variables
         letterCount = getIntent().getIntExtra("LETTER_COUNT", 5);
@@ -117,6 +155,7 @@ public class SecondActivity extends AppCompatActivity {
             button.setLayoutParams(params);
             keyboard.addView(button);
             button.setOnClickListener(v -> onKeyboardButtonClick(String.valueOf(letter)));
+            button.setBackgroundColor(Color.TRANSPARENT);
         }
 
         //ñ button
@@ -128,17 +167,26 @@ public class SecondActivity extends AppCompatActivity {
         paramsÑ.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
         ñButton.setLayoutParams(paramsÑ);
         ñButton.setOnClickListener(v -> onKeyboardButtonClick("Ñ"));
+        ñButton.setBackgroundColor(Color.TRANSPARENT);
         keyboard.addView(ñButton);
+
 
         //submit button
         Button submitButton = new Button(this);
-        submitButton.setText("✔");
+
+        //regular version of the submit button
+        //submitButton.setText("✔");
+
+        //Debug version of the submit button
+        submitButton.setText(targetWord);
+
         submitButton.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
         GridLayout.LayoutParams paramsSubmit = new GridLayout.LayoutParams();
         paramsSubmit.setGravity(Gravity.CENTER);
         paramsSubmit.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
         submitButton.setLayoutParams(paramsSubmit);
         submitButton.setOnClickListener(v -> onSubmitClick());
+        submitButton.setBackgroundColor(Color.TRANSPARENT);
         keyboard.addView(submitButton);
 
         //delete button
@@ -150,7 +198,58 @@ public class SecondActivity extends AppCompatActivity {
         paramsClear.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
         clearButton.setLayoutParams(paramsClear);
         clearButton.setOnClickListener(v -> onClearClick());
+        clearButton.setBackgroundColor(Color.TRANSPARENT);
         keyboard.addView(clearButton);
+
+        if (isTimeLimitEnabled) {
+            // Add a box for time display (last box)
+            TextView timeTextView = new TextView(this);
+            timeTextView.setText(String.format("%d", timeLimit));  // Initial time value
+            timeTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+            timeTextView.setGravity(Gravity.CENTER);
+            timeTextView.setBackgroundResource(android.R.drawable.edit_text);  // Same style as the buttons
+            GridLayout.LayoutParams paramsTime = new GridLayout.LayoutParams();
+            paramsTime.setGravity(Gravity.CENTER);
+            paramsTime.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
+            timeTextView.setLayoutParams(paramsTime);
+            keyboard.addView(timeTextView);
+
+            // Store reference to update the time later
+            timeTextViewRef = timeTextView;
+
+            // Start a countdown timer
+            startCountdownTimer();
+        }
+    }
+
+    private void startCountdownTimer() {
+        // Use the timeLimit passed to the activity
+        new CountDownTimer(timeLimit * 60000, 1000) {  // timeLimit is in seconds, so multiply by 1000 for milliseconds
+            @Override
+            public void onTick(long millisUntilFinished) {
+                int secondsRemaining = (int) millisUntilFinished / 1000;
+                timeTextViewRef.setText(String.format("%d", secondsRemaining));
+            }
+
+            @Override
+            public void onFinish() {
+                // When time is up
+                timeTextViewRef.setText("0");
+                Toast.makeText(SecondActivity.this, "Tiempo terminado!", Toast.LENGTH_SHORT).show();
+                // Handle time's up event (you can disable the game or trigger some end game action)
+                endGame();
+            }
+        }.start();
+    }
+
+    private void endGame() {
+        // Handle game ending logic (e.g., show a message and return to MainActivity)
+        // You could use a delay to return to the main activity or just finish the current activity
+        new Handler().postDelayed(() -> {
+            Intent intent = new Intent(SecondActivity.this, MainActivity.class);
+            startActivity(intent);
+            finish(); // Finish the current activity to remove it from the back stack
+        }, 3000);  // Wait 3 seconds before returning to MainActivity
     }
 
     //makes keys type
@@ -245,12 +344,72 @@ public class SecondActivity extends AppCompatActivity {
             }
         }
 
+//        if (currentGuess.equals(targetWord)) {
+//            Toast.makeText(this, "Ganas!", Toast.LENGTH_SHORT).show();
+//        } else if (currentRow == 5) {
+//            Toast.makeText(this, "Perdiste. La palabra era: " + targetWord, Toast.LENGTH_SHORT).show();
+//        }
+
+        // After the win message:
         if (currentGuess.equals(targetWord)) {
             Toast.makeText(this, "Ganas!", Toast.LENGTH_SHORT).show();
+
+            if (isTimeLimitEnabled) {
+                // Reset the game after winning when time limit is enabled
+                resetBoardAndKeyboard();
+                targetWord = getRandomWordFromAssets(letterCount);  // Generate a new word
+                currentGuess = "";  // Reset the current guess
+                currentRow = -1;     // Reset the current row to 0
+            } else {
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        finish(); // Close SecondActivity and return to MainActivity
+                    }
+                }, 7500); // 7.5 seconds delay
+            }
+
         } else if (currentRow == 5) {
             Toast.makeText(this, "Perdiste. La palabra era: " + targetWord, Toast.LENGTH_SHORT).show();
+
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    finish(); // Close SecondActivity and return to MainActivity
+                }
+            }, 7500); // 7.5 seconds delay
         }
+
     }
+
+    private void resetBoardAndKeyboard() {
+        // Clear the grid content and redraw the boxes
+        currentRow = 0; // Reset current row to start from the top
+        currentGuess = ""; // Clear the current guess
+
+        for (int row = 0; row < 6; row++) {
+            for (int col = 0; col < letterCount; col++) {
+                gridViews[row][col].setText("");  // Clear the text
+                gridViews[row][col].setBackgroundResource(android.R.drawable.edit_text);  // Reset background (no color)
+            }
+        }
+
+        // Redraw the keyboard buttons with no colors
+        for (int i = 0; i < keyboard.getChildCount(); i++) {
+            View view = keyboard.getChildAt(i);
+            if (view instanceof Button) {
+                Button button = (Button) view;
+                button.setBackgroundColor(Color.TRANSPARENT);  // Reset button background to transparent
+            }
+        }
+
+        // Reset any other needed variables, like targetWord if generating a new one
+        targetWord = getRandomWordFromAssets(letterCount);
+        updateGrid();  // Refresh grid to start fresh
+    }
+
+
+
 
     //helps update colors of stuff
     private void updateKeyboardButtonColor(String letter, int color) {
