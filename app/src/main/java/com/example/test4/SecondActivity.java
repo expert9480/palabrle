@@ -39,6 +39,7 @@ public class SecondActivity extends AppCompatActivity {
     int timeLimit;
     boolean isTimeLimitEnabled;
     TextView timeTextViewRef;
+    int correctWords = 0;
 
 //    @Override
 //    protected void onPause() {
@@ -175,10 +176,10 @@ public class SecondActivity extends AppCompatActivity {
         Button submitButton = new Button(this);
 
         //regular version of the submit button
-        //submitButton.setText("✔");
+        submitButton.setText("✔");
 
         //Debug version of the submit button
-        submitButton.setText(targetWord);
+//        submitButton.setText(targetWord);
 
         submitButton.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
         GridLayout.LayoutParams paramsSubmit = new GridLayout.LayoutParams();
@@ -235,7 +236,7 @@ public class SecondActivity extends AppCompatActivity {
             public void onFinish() {
                 // When time is up
                 timeTextViewRef.setText("0");
-                Toast.makeText(SecondActivity.this, "Tiempo terminado!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(SecondActivity.this, "Tiempo terminado! Palabras correctas: " + correctWords, Toast.LENGTH_SHORT).show();
                 // Handle time's up event (you can disable the game or trigger some end game action)
                 endGame();
             }
@@ -360,6 +361,7 @@ public class SecondActivity extends AppCompatActivity {
                 targetWord = getRandomWordFromAssets(letterCount);  // Generate a new word
                 currentGuess = "";  // Reset the current guess
                 currentRow = -1;     // Reset the current row to 0
+                correctWords++;
             } else {
                 new Handler().postDelayed(new Runnable() {
                     @Override
