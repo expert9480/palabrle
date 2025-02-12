@@ -41,6 +41,8 @@ avo
 aya
 ayo
 azo
+aña
+año
 bah
 bao
 bar
@@ -139,6 +141,7 @@ ese
 eso
 eta
 evo
+eñe
 eon
 fai
 fan
@@ -442,6 +445,10 @@ uva
 uve
 uvi
 uzo
+uña
+uñe
+uñi
+uño
 val
 van
 vas
@@ -480,4 +487,4 @@ zoo
 zum
 zua
 abe
-nor
+ñor
